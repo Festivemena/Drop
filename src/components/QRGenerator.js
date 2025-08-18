@@ -134,3 +134,145 @@ export default function QRGenerator({ claimUrls, keys }) {
             >
               {claimUrls.map((_, index) => (
                 <option key={index} value={index}>
+                  Key {index + 1}
+                </option>
+              ))}
+            </select>
+            
+            <div className="flex space-x-2">
+              <button
+                onClick={() => downloadQR(claimUrls[selectedIndex], selectedIndex)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Download QR
+              </button>
+              <button
+                onClick={downloadAllQRs}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Download All
+              </button>
+            </div>
+          </div>
+
+          {/* Large QR Display */}
+          <div className="text-center">
+            <div className="bg-white p-4 rounded inline-block shadow-sm">
+              <QRCode 
+                id={`qr-${selectedIndex}`}
+                value={claimUrls[selectedIndex]} 
+                size={qrSize}
+                style={{ maxWidth: "100%", height: "auto" }}
+              />
+            </div>
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">
+                Key {selectedIndex + 1} of {claimUrls.length}
+              </p>
+              <div className="bg-gray-50 p-3 rounded text-sm font-mono break-all">
+                {claimUrls[selectedIndex]}
+              </div>
+              {keys && keys[selectedIndex] && (
+                <details className="mt-2">
+                  <summary className="text-sm text-gray-600 cursor-pointer hover:text-gray-800">
+                    Show Private Key
+                  </summary>
+                  <div className="mt-2 bg-red-50 border border-red-200 p-2 rounded text-xs font-mono break-all">
+                    <strong className="text-red-700">⚠️ Keep this private:</strong><br/>
+                    {keys[selectedIndex].privateKey}
+                  </div>
+                </details>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        // Batch QR View
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-sm text-gray-600">
+              Showing all {claimUrls.length} QR codes
+            </p>
+            <div className="flex space-x-2">
+              <button
+                onClick={downloadAllQRs}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Download All
+              </button>
+              <button
+                onClick={printQRs}
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+              >
+                Print All
+              </button>
+            </div>
+          </div>
+
+          {/* Grid of QR Codes */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+            {claimUrls.map((url, index) => (
+              <div 
+                key={index}
+                className="border rounded p-3 text-center hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  setSelectedIndex(index);
+                  setShowBatch(false);
+                }}
+              >
+                <QRCode 
+                  id={`qr-batch-${index}`}
+                  value={url} 
+                  size={80}
+                  style={{ maxWidth: "100%", height: "auto" }}
+                />
+                <p className="text-xs mt-2 font-medium">Key {index + 1}</p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadQR(url, index);
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800 mt-1"
+                >
+                  Download
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Usage Instructions */}
+      <div className="mt-6 bg-blue-50 p-4 rounded-lg">
+        <h4 className="font-medium text-blue-900 mb-2">How to use QR codes:</h4>
+        <ul className="text-sm text-blue-800 space-y-1">
+          <li>• Recipients can scan QR codes with their phone camera</li>
+          <li>• Each QR code contains a unique claim link</li>
+          <li>• Print QR codes for physical distribution at events</li>
+          <li>• Download individual QRs for social media sharing</li>
+          <li>• Use batch download for large distributions</li>
+        </ul>
+      </div>
+
+      {/* Statistics */}
+      {claimUrls.length > 1 && (
+        <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div className="text-lg font-bold text-gray-700">{claimUrls.length}</div>
+            <div className="text-xs text-gray-500">Total QR Codes</div>
+          </div>
+          <div>
+            <div className="text-lg font-bold text-blue-600">{qrSize}px</div>
+            <div className="text-xs text-gray-500">QR Code Size</div>
+          </div>
+          <div>
+            <div className="text-lg font-bold text-green-600">
+              {showBatch ? 'Batch' : 'Single'}
+            </div>
+            <div className="text-xs text-gray-500">View Mode</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
