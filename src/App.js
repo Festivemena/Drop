@@ -5,7 +5,7 @@ import ClaimDrop from "./components/ClaimDrop";
 import DropResults from "./components/DropResults";
 import Analytics from "./components/Analytics";
 import { initNear, getWallet } from "./utils/near";
-import "./styles/globals.css";
+import "./globals.css";
 
 export default function App() {
   const [walletConnection, setWalletConnection] = useState(null);
